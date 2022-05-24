@@ -15,9 +15,18 @@ install_ubuntu() {
   elif [[ "$UBUNTU_VERSION" == "20.04"* ]]; then
     cmake3="cmake=3.16*"
     maybe_libiomp_dev=""
+  elif [[ "$UBUNTU_VERSION" == "22.04"* ]]; then
+    cmake3="cmake=3.22*"
+    maybe_libiomp_dev=""
   else
     cmake3="cmake=3.5*"
     maybe_libiomp_dev="libiomp-dev"
+  fi
+
+  if [[ "$CLANG_VERSION" == 12 ]]; then
+    libomp_dev="libomp-12-dev"
+  else
+    libomp_dev=""
   fi
 
   # TODO: Remove this once nvidia package repos are back online
@@ -49,6 +58,7 @@ install_ubuntu() {
     libjpeg-dev \
     libasound2-dev \
     libsndfile-dev \
+    ${libomp_dev} \
     software-properties-common \
     wget \
     sudo \
