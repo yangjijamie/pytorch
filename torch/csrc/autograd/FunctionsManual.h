@@ -112,13 +112,23 @@ at::Tensor _fused_dropout_backward(at::Tensor grad, at::Tensor mask, double p1m)
 at::Tensor infinitely_differentiable_native_dropout_backward(const at::Tensor& grad, const at::Tensor& mask, double scale);
 at::Tensor native_dropout_double_backward(const at::Tensor& ggI, const at::Tensor& grad, const at::Tensor& mask, double scale);
 at::Tensor evenly_distribute_backward(at::Tensor grad, const at::Tensor & input, const at::Tensor & value);
-at::Tensor sgn_backward(Tensor result, Tensor grad, Tensor self);
+Tensor sgn_backward(const Tensor& x, const Tensor& gx, const Tensor& sgn);
+Tensor mean_backward(const Tensor& grad, IntArrayRef shape, IntArrayRef dim, int64_t numel, bool keepdim);
 at::Tensor var_backward(at::Tensor grad, const at::Tensor& self, at::OptionalIntArrayRef dim, c10::optional<int64_t> correction, bool keepdim);
-at::Tensor var_jvp(const at::Tensor& self_t, const at::Tensor& self_p, const at::Tensor& result, at::OptionalIntArrayRef dim_opt, c10::optional<int64_t> correction_opt, bool keepdim);
 at::Tensor std_backward(const at::Tensor& result, const at::Tensor& grad, const at::Tensor& self, at::OptionalIntArrayRef dim, c10::optional<int64_t> correction, bool keepdim);
-at::Tensor mean_backward(at::Tensor grad, const at::IntArrayRef sizes, at::IntArrayRef dim, bool keepdim);
-at::Tensor mean_backward(at::Tensor grad, const at::IntArrayRef sizes, int64_t numel);
-at::Tensor var_std_mean_backward(const variable_list& grads, const at::Tensor& self, const at::Tensor& r1, const at::Tensor& r2, at::OptionalIntArrayRef dim, c10::optional<int64_t> correction, bool keepdim, bool is_std);
+Tensor var_mean_backward(const Tensor& gvar,
+                         const Tensor& gmean,
+                         const Tensor& self,
+                         at::OptionalIntArrayRef dim_opt,
+                         c10::optional<int64_t> correction_opt,
+                         bool keepdim);
+Tensor std_mean_backward(const Tensor& gstd,
+                         const Tensor& gmean,
+                         const Tensor& self,
+                         const Tensor& std,
+                         at::OptionalIntArrayRef dim_opt,
+                         c10::optional<int64_t> correction_opt,
+                         bool keepdim);
 at::Tensor masked_scatter_backward(const at::Tensor & grad, const at::Tensor & mask, at::IntArrayRef sizes);
 at::Tensor cholesky_backward(const at::Tensor& grad, bool upper, const at::Tensor& L);
 at::Tensor cholesky_jvp(const at::Tensor& input_tangent, const at::Tensor& L, bool upper);
@@ -317,6 +327,7 @@ Tensor gelu_double_backward(
     const Tensor & gO,
     const Tensor & input,
     c10::string_view approximate);
+Tensor amaxamin_jvp(const Tensor& x, const Tensor& dx, const Tensor& result, IntArrayRef dim, bool keepdim);
 Tensor as_strided_backward(Tensor grad, TensorGeometry input_geometry, IntArrayRef sizes, IntArrayRef strides, optional<int64_t> storage_offset_);
 Tensor as_strided_scatter_backward(Tensor grad, TensorGeometry input_geometry, TensorGeometry src_geometry, IntArrayRef sizes, IntArrayRef strides, optional<int64_t> storage_offset);
 std::tuple<Tensor, Tensor> atan2_backward(const Tensor& grad, const Tensor& self, const Tensor& other, std::array<bool, 2> output_mask);
