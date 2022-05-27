@@ -324,17 +324,8 @@
   result: maybe_multiply(self_t, beta) + maybe_multiply(batch1_t.bmm(batch2_p), alpha) + maybe_multiply(batch1_p.bmm(batch2_t), alpha)
 
 - name: bernoulli(Tensor self, *, Generator? generator=None) -> Tensor
-  self: zeros_like(grad)
-  result: auto_element_wise
-
-- name: bernoulli_.Tensor(Tensor(a!) self, Tensor p, *, Generator? generator=None) -> Tensor(a!)
-  self: zeros_like(grad)
-  p: zeros_like(p)
-  result: self_t.zero_()
-
-- name: bernoulli_.float(Tensor(a!) self, float p=0.5, *, Generator? generator=None) -> Tensor(a!)
-  self: zeros_like(grad)
-  result: self_t.zero_()
+  self: non_differentiable
+  output_differentiability: [False]
 
 - name: bmm(Tensor self, Tensor mat2) -> Tensor
   self: grad.bmm(mat2.transpose(1, 2).conj())
@@ -344,10 +335,6 @@
 - name: cat(Tensor[] tensors, int dim=0) -> Tensor
   tensors: cat_tensors_backward(grad, to_args_sizes(tensors), to_args_scalartypes(tensors), dim)
   result: cat_jvp(tensors, dim)
-
-- name: cauchy_(Tensor(a!) self, float median=0, float sigma=1, *, Generator? generator=None) -> Tensor(a!)
-  self: zeros_like(grad)
-  result: self_t.zero_()
 
 - name: ceil(Tensor self) -> Tensor
   self: zeros_like(grad)
@@ -612,10 +599,6 @@
   self: at::sum_to(grad, c10::asIntArrayRefSlow(self.sym_sizes()))
   result: auto_linear
 
-- name: exponential_(Tensor(a!) self, float lambd=1, *, Generator? generator=None) -> Tensor(a!)
-  self: zeros_like(grad)
-  result: self_t.zero_()
-
 - name: fake_quantize_per_tensor_affine_cachemask(Tensor self, float scale, int zero_point, int quant_min, int quant_max) -> (Tensor output, Tensor mask)
   self: fake_quantize_per_tensor_affine_cachemask_backward(grad, mask)
 
@@ -685,10 +668,6 @@
 - name: ge_.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)
   self: zeros_like(self)
   other: zeros_like(other)
-  result: self_t.zero_()
-
-- name: geometric_(Tensor(a!) self, float p, *, Generator? generator=None) -> Tensor(a!)
-  self: zeros_like(grad)
   result: self_t.zero_()
 
 - name: geqrf(Tensor self) -> (Tensor a, Tensor tau)
@@ -930,10 +909,6 @@
 
 - name: logdet(Tensor self) -> Tensor
   self: logdet_backward(grad, self, result)
-
-- name: log_normal_(Tensor(a!) self, float mean=1, float std=2, *, Generator? generator=None) -> Tensor(a!)
-  self: zeros_like(grad)
-  result: self_t.zero_()
 
 - name: logsumexp(Tensor self, int[1] dim, bool keepdim=False) -> Tensor
   self: logsumexp_backward(grad, self, result, dim, keepdim)
@@ -1199,22 +1174,18 @@
   x2: not_implemented("_cdist_backward")
   cdist: not_implemented("_cdist_backward")
 
-- name: normal_(Tensor(a!) self, float mean=0, float std=1, *, Generator? generator=None) -> Tensor(a!)
-  self: zeros_like(grad)
-  result: self_t.zero_()
-
 - name: normal.Tensor_float(Tensor mean, float std=1, *, Generator? generator=None) -> Tensor
-  mean: at::zeros(mean.sizes(), grad.options())
-  result: auto_element_wise
+  mean: non_differentiable
+  output_differentiability: [False]
 
 - name: normal.float_Tensor(float mean, Tensor std, *, Generator? generator=None) -> Tensor
-  std: at::zeros(std.sizes(), grad.options())
-  result: auto_element_wise
+  std: non_differentiable
+  output_differentiability: [False]
 
 - name: normal.Tensor_Tensor(Tensor mean, Tensor std, *, Generator? generator=None) -> Tensor
-  mean: at::zeros(mean.sizes(), grad.options())
-  std: at::zeros(std.sizes(), grad.options())
-  result: zeros_like(mean_t)
+  mean: non_differentiable
+  std: non_differentiable
+  output_differentiability: [False]
 
 - name: linalg_householder_product(Tensor input, Tensor tau) -> Tensor
   input, tau: householder_product_backward(grad, result, input, tau)
@@ -1230,8 +1201,8 @@
   result: auto_linear
 
 - name: poisson(Tensor self, Generator? generator=None) -> Tensor
-  self: zeros_like(self)
-  result: auto_element_wise
+  self: non_differentiable
+  output_differentiability: [False]
 
 - name: pow.Tensor_Scalar(Tensor self, Scalar exponent) -> Tensor
   self: pow_backward(grad, self, exponent)
@@ -1267,18 +1238,6 @@
 - name: rad2deg(Tensor self) -> Tensor
   self: rad2deg_backward(grad)
   result: auto_element_wise
-
-- name: random_.from(Tensor(a!) self, int from, int? to, *, Generator? generator=None) -> Tensor(a!)
-  self: zeros_like(grad)
-  result: self_t.zero_()
-
-- name: random_.to(Tensor(a!) self, int to, *, Generator? generator=None) -> Tensor(a!)
-  self: zeros_like(grad)
-  result: self_t.zero_()
-
-- name: random_(Tensor(a!) self, *, Generator? generator=None) -> Tensor(a!)
-  self: zeros_like(grad)
-  result: self_t.zero_()
 
 - name: reciprocal(Tensor self) -> Tensor
   self: -grad * (result * result).conj()
@@ -1635,10 +1594,6 @@
 - name: unfold_backward(Tensor grad_in, int[] input_sizes, int dim, int size, int step) -> Tensor
   grad_in: grad.unfold(dim, size, step)
   result: auto_linear
-
-- name: uniform_(Tensor(a!) self, float from=0, float to=1, *, Generator? generator=None) -> Tensor(a!)
-  self: zeros_like(grad)
-  result: self_t.zero_()
 
 - name: _unique(Tensor self, bool sorted=True, bool return_inverse=False) -> (Tensor, Tensor)
   output_differentiability: [True, False]
@@ -2716,6 +2671,7 @@
   output_differentiability: [False]
 
 - name: multinomial(Tensor self, int num_samples, bool replacement=False, *, Generator? generator=None) -> Tensor
+  self: non_differentiable
   output_differentiability: [False]
 
 - name: nonzero(Tensor self) -> Tensor
