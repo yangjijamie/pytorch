@@ -1,14 +1,46 @@
+#define TORCH_ASSERT_ONLY_METHOD_OPERATORS
 #include <ATen/native/nested/NestedTensorMath.h>
 
-#include <ATen/ATen.h>
+#include <ATen/core/Tensor.h>
 #include <ATen/AccumulateType.h>
 #include <ATen/NamedTensorUtils.h>
-#include <ATen/WrapDimUtils.h>
-#include <ATen/core/op_registration/op_registration.h>
-#include <ATen/native/layer_norm.h>
 #include <ATen/NestedTensorImpl.h>
-#include <c10/core/DispatchKey.h>
-#include <ATen/native/nested/NestedTensorMath.h>
+#include <ATen/native/layer_norm.h>
+
+#ifndef AT_PER_OPERATOR_HEADERS
+#include <ATen/Functions.h>
+#include <ATen/NativeFunctions.h>
+#else
+#include <ATen/ops/_nested_from_padded.h>
+#include <ATen/ops/_nested_from_padded_and_nested_example_native.h>
+#include <ATen/ops/_nested_from_padded_native.h>
+#include <ATen/ops/_nested_tensor_layer_norm_native.h>
+#include <ATen/ops/add.h>
+#include <ATen/ops/add_native.h>
+#include <ATen/ops/cat.h>
+#include <ATen/ops/constant_pad_nd.h>
+#include <ATen/ops/embedding.h>
+#include <ATen/ops/embedding_native.h>
+#include <ATen/ops/empty.h>
+#include <ATen/ops/empty_like_native.h>
+#include <ATen/ops/equal.h>
+#include <ATen/ops/full_like.h>
+#include <ATen/ops/gelu.h>
+#include <ATen/ops/gelu_native.h>
+#include <ATen/ops/mul.h>
+#include <ATen/ops/mul_native.h>
+#include <ATen/ops/nested_tensor_native.h>
+#include <ATen/ops/ones_native.h>
+#include <ATen/ops/relu.h>
+#include <ATen/ops/relu_native.h>
+#include <ATen/ops/split_with_sizes.h>
+#include <ATen/ops/stack.h>
+#include <ATen/ops/stack_native.h>
+#include <ATen/ops/tensor.h>
+#include <ATen/ops/to_padded_tensor_native.h>
+#include <ATen/ops/unbind_native.h>
+#include <ATen/ops/zeros.h>
+#endif
 
 namespace at {
 namespace native {
