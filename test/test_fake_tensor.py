@@ -75,14 +75,6 @@ class FakeTensorTest(TestCase):
         z = x.to(torch.device("cuda"))
         self.assertEqual(z.device.type, "cuda")
 
-    def test_fake_mode_error(self):
-        x = torch.rand([4, 4])
-
-        with self.assertRaisesRegex(Exception, "non-Fake Tensor inputs"):
-            with enable_torch_dispatch_mode(FakeTensorMode(inner=None)):
-                y = x[0]
-
-    @unittest.skipIf(not RUN_CUDA, "requires cuda")
     def test_like_constructor(self):
         x = FakeTensor.from_tensor(torch.rand([4, 4]))
         y = torch.ones_like(x)
@@ -111,6 +103,19 @@ class FakeTensorTest(TestCase):
         with self.assertRaises(NotImplementedError):
             with torch._subclasses.fake_tensor.enable_cpu_fallback(True):
                 out = torch.relu_(x)
+
+    def test_non_fake_inputs(self):
+        x = torch.randn([4, 4])
+        with enable_torch_dispatch_mode(FakeTensorMode(inner=None)):
+            y = x + x
+        self.assertTrue(isinstance(y, FakeTensor))
+
+    def test_non_fake_input_resized(self):
+        x = torch.randn([4, 4])
+        with enable_torch_dispatch_mode(FakeTensorMode(inner=None)):
+            y = x.add_(1)
+            with self.assertRaisesRegex(Exception, "Inplace metadata change"):
+                y.resize_([16, 1])
 
 def contains_type(type: torch._C.Type, maybe_contained_type: torch._C.Type):
     return maybe_contained_type.isSubtypeOf(type) or any(
