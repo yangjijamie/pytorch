@@ -1,8 +1,6 @@
-#include <ATen/ATen.h>
-#include <ATen/NativeFunctions.h>
-#include <ATen/native/DispatchStub.h>
-
 #pragma once
+#include <ATen/core/Tensor.h>
+#include <ATen/native/DispatchStub.h>
 
 namespace at { namespace native {
 
